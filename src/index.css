@@ -1,0 +1,401 @@
+@import "tailwindcss";
+
+/* `dark:` utilities follow the same class that flips the colour tokens below. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens (Tailwind v4 CSS-first configuration) */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Light theme: soft lilac-white surfaces. Same violet + cyan identity as dark. */
+  --color-canvas: #f4f5fc;
+  --color-surface: #ffffff;
+  --color-ink: #15172b;
+  --color-muted: #5d6388;
+  --color-line: #dcdff0;
+  --color-soft: #eceef9;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fdecee;
+  --color-badge: #e0245e;
+  --color-like: #e11d6a;
+
+  /* Accents. brand-from = neon violet (text, focus, indicators); brand-to = electric cyan (glows, gradients).
+     brand-btn / brand-end are the darker pair used for filled controls so white text keeps AA contrast. */
+  --color-brand-soft: #efeaff;
+  --color-brand-from: #6d28d9;
+  --color-brand-to: #0e7490;
+  --color-brand-btn: #6d28d9;
+  --color-brand-btn-hover: #5b21b6;
+  --color-brand-end: #2563eb;
+
+  --radius-card: 1.125rem;
+  --shadow-card: 0 1px 2px rgb(20 22 60 / 0.06), 0 8px 24px rgb(20 22 60 / 0.06);
+}
+
+@layer base {
+  /* Dark theme: only the semantic tokens change, so every component follows automatically. */
+  :root.dark {
+    --color-canvas: #070914;
+    --color-surface: #0f1226;
+    --color-ink: #eceeff;
+    --color-muted: #9aa0c6;
+    --color-line: #242a4d;
+    --color-soft: #181d3a;
+    --color-danger: #ff7a93;
+    --color-danger-soft: #34121f;
+    --color-badge: #e0245e;
+    --color-like: #ff4d8d;
+    --color-brand-soft: #1c1840;
+    --color-brand-from: #a78bfa;
+    --color-brand-to: #22d3ee;
+    --color-brand-btn: #7c3aed;
+    --color-brand-btn-hover: #6d28d9;
+    --color-brand-end: #4f6bff;
+    --shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 10px 30px rgb(0 0 0 / 0.4);
+  }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  /* Soft violet/cyan lights behind everything (decorative; stays put while scrolling). */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(60rem 36rem at 8% -8%, color-mix(in srgb, var(--color-brand-from) 14%, transparent), transparent 62%),
+      radial-gradient(48rem 34rem at 108% 108%, color-mix(in srgb, var(--color-brand-to) 10%, transparent), transparent 62%);
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-to);
+    outline-offset: 2px;
+  }
+}
+
+/* Brand surfaces. `bg-brand-gradient` is the filled-control gradient (violet to blue, AA with white text). */
+@utility bg-brand-gradient {
+  background-image: linear-gradient(135deg, var(--color-brand-btn), var(--color-brand-end));
+}
+
+/* Gradient headline text, violet to cyan. */
+@utility text-brand-gradient {
+  background-image: linear-gradient(90deg, var(--color-brand-from), var(--color-brand-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+/* Selective neon glow: only for active/primary elements. */
+@utility shadow-glow {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-brand-from) 45%, transparent),
+    0 0 22px color-mix(in srgb, var(--color-brand-from) 30%, transparent),
+    0 0 44px color-mix(in srgb, var(--color-brand-to) 12%, transparent);
+}
+
+/* Avatar ring: a violet-to-cyan gradient border (the avatar sits inside with its own surface-coloured gap). */
+@utility bg-accent-ring {
+  background-image: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));
+}
+@utility shadow-ring-glow {
+  box-shadow: 0 0 14px color-mix(in srgb, var(--color-brand-from) 45%, transparent);
+}
+
+/* Active indicator line (tabs, navigation): gradient with a faint glow. Shape (a bar) also marks "active". */
+@utility accent-line {
+  background-image: linear-gradient(90deg, var(--color-brand-from), var(--color-brand-to));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-to) 55%, transparent);
+}
+
+/* Post cards: hover lifts slightly and the border picks up a violet/cyan glow (pointer devices only). */
+.post-card {
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+@media (hover: hover) {
+  .post-card:hover {
+    border-color: color-mix(in srgb, var(--color-brand-from) 50%, var(--color-line));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-brand-from) 22%, transparent),
+      0 14px 34px color-mix(in srgb, var(--color-brand-from) 16%, transparent),
+      0 0 26px color-mix(in srgb, var(--color-brand-to) 8%, transparent);
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .post-card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+
+
+/* ---------- Auth pages: motion. Everything below is switched off for reduced-motion users. ---------- */
+@keyframes auth-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes auth-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.08);
+  }
+}
+@keyframes auth-sheen {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+@keyframes auth-ring {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-auth-rise {
+  animation: auth-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+@utility animate-auth-float {
+  animation: auth-float 14s ease-in-out infinite;
+}
+@utility animate-auth-ring {
+  animation: auth-ring 18s linear infinite;
+}
+@utility auth-sheen-text {
+  background-image: linear-gradient(90deg, var(--color-brand-from), var(--color-brand-to), var(--color-brand-from));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: auth-sheen 6s linear infinite;
+}
+
+/* =====================================================================================
+   Motion system. Only `transform` and `opacity` are animated (plus the skeleton shimmer),
+   durations are short, and everything is neutralised for prefers-reduced-motion at the end.
+   ===================================================================================== */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes dialog-out {
+  to { opacity: 0; transform: scale(0.97); }
+}
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes backdrop-out {
+  to { opacity: 0; }
+}
+@keyframes like-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.35) rotate(-8deg); }
+  70% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+@keyframes bookmark-pop {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-3px) scale(1.2); }
+  100% { transform: none; }
+}
+@keyframes badge-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(8px) scale(0.97); }
+}
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+@keyframes success-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand-from) 55%, transparent); }
+  100% { box-shadow: 0 0 0 14px transparent; }
+}
+@keyframes check-draw {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes particle {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  20% { opacity: 0.7; }
+  100% { transform: translate3d(var(--dx, 10px), -130px, 0); opacity: 0; }
+}
+
+/* Stagger: `--i` is the item index, capped at 6 steps of 40ms so long lists never feel delayed. */
+@utility animate-fade-up {
+  animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 6) * 40ms);
+}
+@utility animate-fade-in {
+  animation: fade-in 0.2s ease-out both;
+}
+@utility animate-pop-in {
+  animation: pop-in 0.14s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@utility animate-page-in {
+  animation: page-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@utility animate-like-pop {
+  animation: like-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@utility animate-bookmark-pop {
+  animation: bookmark-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@utility animate-badge-pop {
+  animation: badge-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@utility animate-toast-in {
+  animation: toast-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@utility animate-toast-out {
+  animation: toast-out 0.2s ease-in forwards;
+}
+@utility animate-success-ring {
+  animation: success-ring 0.8s ease-out;
+}
+@utility animate-check-draw {
+  stroke-dasharray: 24;
+  animation: check-draw 0.4s 0.1s ease-out both;
+}
+@utility animate-particle {
+  animation: particle var(--dur, 14s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@utility skeleton-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-soft) 0%,
+    color-mix(in srgb, var(--color-line) 55%, var(--color-soft)) 50%,
+    var(--color-soft) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+@utility shadow-card-hover {
+  box-shadow: 0 3px 12px rgb(0 0 0 / 0.12);
+}
+
+/* Native <dialog>: scale + fade in; `data-closing` (set by Dialog / ImageLightbox) plays the exit. */
+dialog[open] {
+  animation: dialog-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+dialog[open]::backdrop {
+  animation: backdrop-in 0.2s ease-out;
+}
+dialog[data-closing] {
+  animation: dialog-out 0.14s ease-in forwards;
+}
+dialog[data-closing]::backdrop {
+  animation: backdrop-out 0.14s ease-in forwards;
+}
+
+@layer base {
+  /* Press feedback for every button (`data-no-press` opts out, e.g. large image triggers). */
+  button:not(:disabled):not([data-no-press]):active {
+    transform: scale(0.97);
+  }
+  button:not([class*='transition']) {
+    transition: transform 0.12s ease;
+  }
+}
+
+/* Theme switch: briefly cross-fade colours (class is added by ThemeProvider for ~300ms, never at startup). */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    fill 0.25s ease,
+    stroke 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+/* Lighter, faster motion on phones. */
+@media (max-width: 640px) {
+  .animate-fade-up {
+    animation-duration: 0.25s;
+  }
+  .animate-page-in {
+    animation-duration: 0.18s;
+  }
+}
+
+/* Reduced motion: no movement, no looping, instant transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-auth-float,
+  .animate-auth-ring,
+  .auth-sheen-text,
+  .animate-particle {
+    animation: none !important;
+  }
+  .animate-particle {
+    display: none;
+  }
+}
