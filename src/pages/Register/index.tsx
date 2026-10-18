@@ -8,7 +8,8 @@ import { Button } from '../../components/common/Button';
 import { PageTitle } from '../../components/common/PageTitle';
 import { PasswordField, SelectField, TextField } from '../../components/common/TextField';
 import { useAuth } from '../../hooks/useAuth';
-import { registerSchema, type RegisterValues } from '../../schemas/auth.schema';
+import type { z } from 'zod';
+import { registerSchema } from '../../schemas/auth.schema';
 import { applyApiErrors } from '../../utils/formErrors';
 
 export default function RegisterPage() {
@@ -20,7 +21,16 @@ export default function RegisterPage() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterValues>({ resolver: zodResolver(registerSchema), defaultValues: { gender: '' } });
+  } = useForm<
+  z.input<typeof registerSchema>,
+  any,
+  z.output<typeof registerSchema>
+>({
+  resolver: zodResolver(registerSchema),
+  defaultValues: {
+    gender: '',
+  },
+});
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
